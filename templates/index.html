@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Iris AI Predictor</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url("https://images.unsplash.com/photo-1501004318641-b39e6451bec6") center/cover no-repeat fixed;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Dark overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: -1;
+        }
+
+        .main-container {
+            width: 1300px;
+            margin: 50px auto;
+            display: flex;
+            gap: 30px;
+        }
+
+        /* LEFT PANEL */
+        .left-panel {
+            flex: 1;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            color: white;
+        }
+
+        /* RIGHT PANEL */
+        .right-panel {
+            flex: 1;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            color: white;
+        }
+
+        /* PROFILE */
+        .profile {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 3px solid white;
+            margin-bottom: 15px;
+        }
+
+        .github-icon {
+            font-size: 28px;
+            margin-top: 10px;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .github-icon:hover {
+            transform: scale(1.2);
+            color: #00ff88;
+        }
+
+        /* INPUTS */
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg,#00ff88,#00c853);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,255,136,0.5);
+        }
+
+        /* Prediction */
+        .prediction-box {
+            text-align: center;
+            margin-top: 20px;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        .prediction-box img {
+            width: 300px;
+            border-radius: 20px;
+            margin-top: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        th {
+            background: rgba(0,0,0,0.5);
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="main-container">
+
+    <!-- LEFT SIDE -->
+    <div class="left-panel">
+
+        <div class="profile">
+            <img src="{{ url_for('static', filename='profile.jpg') }}">
+            <h2>G.Krishna</h2>
+            <p>gundakrishna2004@gmail.com</p>
+            <p>6305346120</p>
+            <a href="https://github.com/krishna-gunda" target="_blank">
+                <i class="fab fa-github github-icon"></i>
+            </a>
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="sepal_length" placeholder="Sepal Length">
+            <input type="number" id="sepal_width" placeholder="Sepal Width">
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="petal_length" placeholder="Petal Length">
+            <input type="number" id="petal_width" placeholder="Petal Width">
+        </div>
+
+        <div class="input-group">
+            <select id="model">
+                <option value="knn">KNN</option>
+                <option value="naive_bayes">Naive Bayes</option>
+            </select>
+        </div>
+
+        <button onclick="predict()">Predict Flower</button>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-panel">
+
+        <div id="prediction" class="prediction-box">
+            <h2>Prediction will appear here</h2>
+        </div>
+
+        <div class="results">
+            <h3 style="margin-top:30px;">Train Results</h3>
+            <div id="train_results"></div>
+
+            <h3 style="margin-top:30px;">Test Results</h3>
+            <div id="test_results"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function predict() {
+
+    const model = document.getElementById("model").value;
+
+    const features = [
+        parseFloat(document.getElementById("sepal_length").value),
+        parseFloat(document.getElementById("sepal_width").value),
+        parseFloat(document.getElementById("petal_length").value),
+        parseFloat(document.getElementById("petal_width").value)
+    ];
+
+    fetch("/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            model: model,
+            features: features
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        let predictedClass = data.prediction[0];
+        let flowerName = "";
+        let flowerImage = "";
+
+        if (predictedClass === 0) {
+            flowerName = "Iris Setosa 🌸";
+            flowerImage = "/static/setosa.jpg";
+        }
+        else if (predictedClass === 1) {
+            flowerName = "Iris Versicolor 🌼";
+            flowerImage = "/static/versicolor.jpg";
+        }
+        else {
+            flowerName = "Iris Virginica 🌺";
+            flowerImage = "/static/virginica.jpg";
+        }
+
+        document.getElementById("prediction").innerHTML =
+            "<h2>Predicted Flower: " + flowerName + "</h2>" +
+            "<img src='" + flowerImage + "'>";
+
+        document.getElementById("train_results").innerHTML =
+            formatResults(data.train_results);
+
+        document.getElementById("test_results").innerHTML =
+            formatResults(data.test_results);
+    });
+}
+
+function formatResults(results) {
+    let html = "<p><b>Accuracy:</b> " + results.accuracy_score + "</p>";
+    html += formatMatrix(results.confusion_matrix);
+    html += formatReport(results.classification_report);
+    return html;
+}
+
+function formatMatrix(matrix) {
+    let html = "<table>";
+    matrix.forEach(row => {
+        html += "<tr>";
+        row.forEach(cell => {
+            html += "<td>" + cell + "</td>";
+        });
+        html += "</tr>";
+    });
+    html += "</table>";
+    return html;
+}
+
+function formatReport(report) {
+    let html = "<table>";
+    html += "<tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Support</th></tr>";
+
+    for (let key in report) {
+        if (typeof report[key] === "object") {
+            html += "<tr>";
+            html += "<td>" + key + "</td>";
+            html += "<td>" + report[key]["precision"] + "</td>";
+            html += "<td>" + report[key]["recall"] + "</td>";
+            html += "<td>" + report[key]["f1-score"] + "</td>";
+            html += "<td>" + report[key]["support"] + "</td>";
+            html += "</tr>";
+        }
+    }
+
+    html += "</table>";
+    return html;
+}
+
+</script>
+
+</body>
+</html>
